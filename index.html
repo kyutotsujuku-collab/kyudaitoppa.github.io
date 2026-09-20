@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>九大突破塾 学習ページ一覧</title>
+<style>
+  :root{
+    --navy:#1b2a4a; --red:#b5342c; --bg:#f6f4ef; --card:#fff; --text:#222; --sub:#666; --line:#e2ded6;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",Meiryo,sans-serif;line-height:1.6}
+  header{background:var(--navy);color:#fff;padding:20px 16px 16px}
+  header h1{margin:0;font-family:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;font-weight:600;font-size:22px;letter-spacing:.04em}
+  header p{margin:4px 0 0;font-size:13px;opacity:.8}
+  main{max-width:640px;margin:0 auto;padding:16px}
+  h2{font-size:14px;color:var(--sub);margin:20px 4px 8px;letter-spacing:.08em;border-left:3px solid var(--red);padding-left:8px}
+  h2:first-of-type{margin-top:4px}
+  .list{display:flex;flex-direction:column;gap:10px}
+  a.card{display:block;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;text-decoration:none;color:inherit;position:relative;transition:transform .08s}
+  a.card:active{transform:scale(.985)}
+  a.card::after{content:"›";position:absolute;right:16px;top:50%;transform:translateY(-50%);color:var(--red);font-size:22px}
+  .title{font-weight:700;font-size:16px;color:var(--navy)}
+  .desc{font-size:13px;color:var(--sub);margin-top:2px;padding-right:20px}
+  .tag{display:inline-block;font-size:11px;background:var(--navy);color:#fff;border-radius:4px;padding:1px 6px;margin-right:6px;vertical-align:middle}
+  footer{text-align:center;font-size:12px;color:var(--sub);padding:24px 16px 32px}
+</style>
+</head>
+<body>
+<header>
+  <h1>九大突破塾 学習ページ一覧</h1>
+  <p>スマホでそのまま使えます。ホーム画面に追加しておくと便利です。</p>
+</header>
+<main id="main"></main>
+<footer>© 九大突破塾</footer>
+
+<script>
+// ===== ここだけ編集すればOK =====
+const GH = "https://kyudaitoppa.github.io/";
+const SITES = [
+  { group: "英語", items: [
+    { tag:"英作", title:"基礎英作文 英作テスト", desc:"例題1〜100を出題", url: GH+"eisaku/test.html" },
+    { tag:"英作", title:"基礎英作文 対訳リスト", desc:"英文と和訳の一覧", url: GH+"eisaku/list.html" },
+  ]},
+  { group: "世界史", items: [
+    { tag:"暗記", title:"文化史・年号 総まとめ", desc:"カード／4択／一覧、間違いだけ復習", url: GH+"sekaishi/" },
+    { tag:"ヨコ", title:"同時代のつながり", desc:"世紀×地域タイムラインとヨコ問題", url: GH+"sekaishi/yoko/" },
+  ]},
+  { group: "情報I", items: [
+    { tag:"共テ", title:"情報I 共通テスト対策", desc:"読む→穴埋め→4択、今日のメニュー付き", url: GH+"joho1/" },
+  ]},
+];
+// =================================
+
+const main = document.getElementById("main");
+for (const g of SITES) {
+  const h = document.createElement("h2"); h.textContent = g.group; main.appendChild(h);
+  const box = document.createElement("div"); box.className = "list";
+  for (const s of g.items) {
+    const a = document.createElement("a"); a.className = "card"; a.href = s.url;
+    a.innerHTML = `<div class="title">${s.tag ? `<span class="tag">${s.tag}</span>` : ""}${s.title}</div>` +
+                  (s.desc ? `<div class="desc">${s.desc}</div>` : "");
+    box.appendChild(a);
+  }
+  main.appendChild(box);
+}
+</script>
+</body>
+</html>

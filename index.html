@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1b2a4a">
 <title>九大突破塾 学習ページ一覧</title>
 <style>
   :root{
@@ -24,7 +25,21 @@
   .desc{font-size:13px;color:var(--sub);margin-top:2px;padding-right:20px}
   .tag{display:inline-block;font-size:11px;background:var(--navy);color:#fff;border-radius:4px;padding:1px 6px;margin-right:6px;vertical-align:middle}
   footer{text-align:center;font-size:12px;color:var(--sub);padding:24px 16px 32px}
+  .app{max-width:640px;margin:8px auto 0;padding:0 16px}
+  .app-box{background:#fff;border:1px dashed var(--navy);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--text)}
+  .app-box b{color:var(--navy)}
+  .app-box button{margin-top:8px;width:100%;border:0;border-radius:8px;background:var(--navy);color:#fff;font-size:15px;font-weight:700;padding:10px;font-family:inherit}
+  @media (display-mode: standalone){.app{display:none}}
 </style>
+<!-- PWA（アプリ化）ここから：消さない -->
+<link rel="manifest" href="/kyudaitoppa.github.io/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/kyudaitoppa.github.io/icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="九大突破塾">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<script>if("serviceWorker"in navigator){addEventListener("load",function(){navigator.serviceWorker.register("/kyudaitoppa.github.io/sw.js").then(function(){return navigator.serviceWorker.ready}).then(function(){if(window.caches)caches.open("kts-v1").then(function(c){return c.add(location.pathname)}).catch(function(){})}).catch(function(){})})}</script>
+<!-- PWA ここまで -->
 </head>
 <body>
 <header>
@@ -32,7 +47,27 @@
   <p>スマホでそのまま使えます。ホーム画面に追加しておくと便利です。</p>
 </header>
 <main id="main"></main>
+<div class="app" id="app" hidden><div class="app-box">
+  <b>アプリとして使う</b><br><span id="app-msg"></span>
+  <button id="app-btn" hidden>ホーム画面に追加する</button>
+</div></div>
 <footer>© 九大突破塾</footer>
+
+<script>
+// ===== アプリ化の案内（ホーム画面から開いているときは出さない）=====
+(function(){
+  var standalone = window.navigator.standalone === true || (window.matchMedia && matchMedia("(display-mode: standalone)").matches);
+  if (standalone) return;
+  var box = document.getElementById("app"), msg = document.getElementById("app-msg"), btn = document.getElementById("app-btn");
+  var ua = navigator.userAgent, ios = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  if (ios) { msg.textContent = "Safariの共有ボタン（□に↑）→「ホーム画面に追加」で、アイコンから開けるようになります。"; box.hidden = false; }
+  var ev = null;
+  addEventListener("beforeinstallprompt", function(e){ e.preventDefault(); ev = e;
+    msg.textContent = "ホーム画面にアイコンを置いて、アプリのように開けます。"; btn.hidden = false; box.hidden = false; });
+  btn.addEventListener("click", function(){ if (!ev) return; ev.prompt(); ev = null; btn.hidden = true; box.hidden = true; });
+  addEventListener("appinstalled", function(){ box.hidden = true; });
+})();
+</script>
 
 <script>
 // ===== ここだけ編集すればOK =====

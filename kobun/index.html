@@ -37,6 +37,7 @@ h2:first-child{margin-top:2px}
 .big{display:block;width:100%;border:0;border-radius:12px;background:var(--acc);color:#fff;font-size:17px;font-weight:700;padding:14px;font-family:inherit;margin-top:12px}
 .big:disabled{opacity:.4}
 .big.ghost{background:#fff;color:var(--acc);border:1.5px solid var(--acc)}
+.big.sm{font-size:13.5px;padding:9px 6px;margin-top:0}
 .row{display:flex;gap:8px}.row>*{flex:1}
 .prog{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--sub);margin-bottom:8px}
 .prog .bar{flex:1;height:6px;border-radius:9px;background:var(--soft);overflow:hidden}
@@ -85,7 +86,7 @@ input[type=search]{width:100%;border:1px solid var(--line);border-radius:10px;pa
 <!-- PWA ここまで -->
 </head>
 <body>
-<header><h1 class="mincho">古文単語テスト</h1><span class="ver">v2</span><a href="../">一覧へ</a></header>
+<header><h1 class="mincho">古文単語テスト</h1><span class="ver">v3</span><a href="../">一覧へ</a></header>
 <main id="main"></main>
 <nav class="tabs" id="tabs"></nav>
 <script>
@@ -139,6 +140,12 @@ function pgHtml(e) { const rs = (e.r || "").split("、").filter(Boolean); return
 function metaHtml(e) { return `<div class="meta">${e.n ? "番号 " + e.n + "　" : "関連語　"}${e.k ? "漢字：" + esc(e.k) + "　" : ""}本 p.${pgHtml(e)}${e.note ? "<br>" + esc(e.note) : ""}</div>`; }
 // ---------- ホーム（範囲選択）----------
 function setPicker(box, onChange) {
+  const allOn = SETS.every(x => S.sets.includes(x.id));
+  const pick = $(`<div class="row" style="margin-bottom:2px"><button class="big ghost sm">${allOn ? "✓ 全範囲を選択中" : "全範囲を選ぶ"}</button><button class="big ghost sm">選択を外す</button></div>`);
+  const [pa, pn] = pick.querySelectorAll("button");
+  pa.onclick = () => { S.sets = SETS.map(x => x.id); save(); onChange(); };
+  pn.onclick = () => { S.sets = []; save(); onChange(); };
+  box.appendChild(pick);
   let g = "";
   let grid;
   SETS.forEach(s => {
@@ -164,6 +171,10 @@ function home() {
   const b1 = $(`<button class="big" ${p.length ? "" : "disabled"}>テスト開始（選択中 ${p.length}語）</button>`);
   b1.onclick = () => startQuiz(pu.length ? [...shuffle(pu), ...shuffle(p.filter(mastered))] : shuffle(p));
   main.appendChild(b1);
+  const au = QUIZABLE.filter(e => !mastered(e));
+  const b0 = $(`<button class="big ghost">全範囲からテスト（${QUIZABLE.length}語から${S.len ? S.len + "問" : "ぜんぶ"}）</button>`);
+  b0.onclick = () => startQuiz([...shuffle(au), ...shuffle(QUIZABLE.filter(mastered))]);
+  main.appendChild(b0);
   const b2 = $(`<button class="big ghost" ${px.length ? "" : "disabled"}>この範囲の間違いだけ（${px.length}語）</button>`);
   b2.onclick = () => startQuiz(shuffle(px), true);
   main.appendChild(b2);

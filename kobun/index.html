@@ -86,7 +86,7 @@ input[type=search]{width:100%;border:1px solid var(--line);border-radius:10px;pa
 <!-- PWA ここまで -->
 </head>
 <body>
-<header><h1 class="mincho">古文単語テスト</h1><span class="ver">v3</span><a href="../">一覧へ</a></header>
+<header><h1 class="mincho">古文単語テスト</h1><span class="ver">v4</span><a href="../">一覧へ</a></header>
 <main id="main"></main>
 <nav class="tabs" id="tabs"></nav>
 <script>
@@ -181,12 +181,30 @@ function home() {
   main.appendChild($(`<div class="note" style="margin-top:14px">『マドンナ古文単語』の索引（暗記チェック式）に合わせています。番号・ページは本のものです（赤い数字が見出し語のページ）。記録はこのスマホの中だけに保存されます。</div>`));
 }
 // ---------- 4択テスト ----------
+// 選択肢：品詞をそろえ、形や訳が似ていて紛らわしい別の語を選ぶ
+const POSG = {"形":"adj","形動":"adj","名・形動":"adj","形動・副":"adj","動":"v","他動":"v","名+動":"v","名+格助+動":"v","名+格助+副助+動":"v","副+動":"v","動+助動":"v","接尾":"v","名":"n","代名":"n","副":"adv","名・副":"adv","副・接続":"adv","副／名・形動":"adv","副+終助":"adv","接続":"conj","連体":"rt","連体・副":"rt","感":"int","連語":"phr","格助+接尾":"phr"};
+const posg = e => POSG[e.p] || "etc";
+const norm = w => w.replace(/〔[^〕]*〕|[〜（）()「」、。+\s]/g, "");
+const bigr = w => { const a = []; for (let i = 0; i < w.length - 1; i++) a.push(w.slice(i, i + 2)); return a; };
+const toks = e => e.ms.flatMap(x => x.split("・")).map(x => x.replace(/^〔[^〕]*〕/, "").trim()).filter(Boolean);
+E.forEach(e => { e.nw = norm(e.w); e.bg = bigr(e.nw); e.tk = new Set(toks(e)); e.kj = new Set((e.mt.match(/[一-龠]/g) || [])); });
+function sim(a, b) {
+  let sh = 0; const bb = b.bg.slice(); a.bg.forEach(x => { const k = bb.indexOf(x); if (k >= 0) { sh++; bb.splice(k, 1); } });
+  const dice = a.bg.length + b.bg.length ? 2 * sh / (a.bg.length + b.bg.length) : 0;
+  let pre = 0; while (pre < 3 && a.nw[pre] && a.nw[pre] === b.nw[pre]) pre++;
+  let kj = 0; a.kj.forEach(c => { if (b.kj.has(c)) kj++; }); const ku = a.kj.size + b.kj.size - kj;
+  return dice + 0.2 * pre + 0.6 * (ku ? kj / ku : 0) + (a.ms.length === b.ms.length ? 0.4 : 0) + (a.p === b.p ? 0.15 : 0);
+}
 function distractors(e, dir) {
-  const same = x => x.id !== e.id && x.mt !== e.mt && !(e.n && x.n === e.n) && x.w !== e.w;
-  let c = QUIZABLE.filter(x => same(x) && x.p === e.p);
-  if (c.length < 8) c = QUIZABLE.filter(same);
+  // 正解と訳が重なる語（別解になりうる語）と同じ番号の語は外す
+  const ok = x => x.id !== e.id && x.w !== e.w && x.mt !== e.mt && !(e.n && x.n === e.n) && ![...x.tk].some(t => e.tk.has(t));
+  const all = QUIZABLE.filter(ok);
+  let c = all.filter(x => x.p === e.p);
+  if (c.length < 6) c = all.filter(x => posg(x) === posg(e));
+  if (c.length < 6) c = all;
+  const ranked = c.map(x => [sim(e, x) + Math.random() * 0.25, x]).sort((a, b) => b[0] - a[0]).map(x => x[1]);
   const out = [], seen = new Set([dir === "km" ? e.mt : e.w]);
-  for (const x of shuffle(c)) { const key = dir === "km" ? x.mt : x.w; if (seen.has(key)) continue; seen.add(key); out.push(x); if (out.length === 3) break; }
+  for (const x of [...shuffle(ranked.slice(0, 5)), ...ranked.slice(5)]) { const key = dir === "km" ? x.mt : x.w; if (seen.has(key)) continue; seen.add(key); out.push(x); if (out.length === 3) break; }
   return out;
 }
 function startQuiz(items, all) {

@@ -28,6 +28,7 @@
   .app{max-width:640px;margin:8px auto 0;padding:0 16px}
   .app-box{background:#fff;border:1px dashed var(--navy);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--text)}
   .app-box b{color:var(--navy)}
+  #app-msg{display:block;line-height:1.75}
   .app-box button{margin-top:8px;width:100%;border:0;border-radius:8px;background:var(--navy);color:#fff;font-size:15px;font-weight:700;padding:10px;font-family:inherit}
   @media (display-mode: standalone){.app{display:none}}
 </style>
@@ -60,10 +61,13 @@
   if (standalone) return;
   var box = document.getElementById("app"), msg = document.getElementById("app-msg"), btn = document.getElementById("app-btn");
   var ua = navigator.userAgent, ios = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
-  if (ios) { msg.textContent = "Safariの共有ボタン（□に↑）→「ホーム画面に追加」で、アイコンから開けるようになります。"; box.hidden = false; }
+  var android = /Android/.test(ua);
+  if (ios) { msg.innerHTML = "ホーム画面にアイコンを置いて、アプリのように開けます。<br>・<b>Safari</b>：下の共有ボタン（□に↑）→「ホーム画面に追加」<br>・<b>Chrome</b>：アドレスバー右の共有ボタン（□に↑）→「ホーム画面に追加」"; box.hidden = false; }
+  else if (android) { msg.innerHTML = "ホーム画面にアイコンを置いて、アプリのように開けます。<br>・<b>Chrome</b>：右上の「︙」→「ホーム画面に追加」→「インストール」"; box.hidden = false; }
   var ev = null;
   addEventListener("beforeinstallprompt", function(e){ e.preventDefault(); ev = e;
-    msg.textContent = "ホーム画面にアイコンを置いて、アプリのように開けます。"; btn.hidden = false; box.hidden = false; });
+    if (!android) msg.textContent = "ホーム画面にアイコンを置いて、アプリのように開けます。";
+    btn.hidden = false; box.hidden = false; });
   btn.addEventListener("click", function(){ if (!ev) return; ev.prompt(); ev = null; btn.hidden = true; box.hidden = true; });
   addEventListener("appinstalled", function(){ box.hidden = true; });
 })();

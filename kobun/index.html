@@ -89,7 +89,7 @@ input[type=search]{width:100%;border:1px solid var(--line);border-radius:10px;pa
 <!-- PWA ここまで -->
 </head>
 <body>
-<header><h1 class="mincho">古文単語テスト</h1><span class="ver">v6</span><a href="../">一覧へ</a></header>
+<header><h1 class="mincho">古文単語テスト</h1><span class="ver">v7</span><a href="../">一覧へ</a></header>
 <main id="main"></main>
 <nav class="tabs" id="tabs"></nav>
 <script>
@@ -114,6 +114,7 @@ const QUIZABLE = E.filter(e => !e.kake);
 const KEY = "kobun_tango_v1";
 let S = {rec:{}, sets:["n1"], dir:"km", len:10, hide:true};
 try { Object.assign(S, JSON.parse(localStorage.getItem(KEY) || "{}")); } catch (_) {}
+S.dir = "km";   // 出題は「古文単語 → 訳」のみ
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (_) {} };
 const rec = e => S.rec[e.id] || (S.rec[e.id] = {s:0, x:0});
 const mastered = e => (S.rec[e.id] || {}).s >= 2;
@@ -163,9 +164,6 @@ function home() {
   const all = QUIZABLE, m = all.filter(mastered).length, x = all.filter(missed).length;
   main.appendChild($(`<div class="card"><div class="stat"><div><b>${m}</b><span>覚えた / ${all.length}語</span></div><div><b>${Math.round(m / all.length * 100)}%</b><span>達成度</span></div><div><b>${x}</b><span>間違い中</span></div></div>
    <div class="note" style="margin-top:8px">2回続けて正解すると「覚えた」になります。間違えると「間違い」に入り、正解すると外れます。</div></div>`));
-  const dir = $(`<div class="seg"><button data-d="km">古文 → 現代語訳</button><button data-d="mk">現代語訳 → 古文</button></div>`);
-  dir.querySelectorAll("button").forEach(b => { b.className = S.dir === b.dataset.d ? "on" : ""; b.onclick = () => { S.dir = b.dataset.d; save(); render(); }; });
-  main.appendChild(dir);
   const len = $(`<div class="seg"><button data-n="10">10問</button><button data-n="20">20問</button><button data-n="0">範囲ぜんぶ</button></div>`);
   len.querySelectorAll("button").forEach(b => { b.className = S.len == b.dataset.n ? "on" : ""; b.onclick = () => { S.len = +b.dataset.n; save(); render(); }; });
   main.appendChild(len);

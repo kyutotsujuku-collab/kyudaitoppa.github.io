@@ -52,10 +52,13 @@ h2:first-child{margin-top:2px}
 .opt.ok{border-color:var(--ok);background:var(--okbg)}
 .opt.ng{border-color:var(--ng);background:var(--ngbg)}
 .opt:disabled{color:var(--ink);opacity:1}
+.opt .rev{display:block;margin-top:5px;padding-top:5px;border-top:1px dashed var(--line);font-size:12.5px;color:var(--sub);font-family:"Hiragino Sans","Noto Sans JP",sans-serif;font-weight:400}
+.opt .rev b{font-size:15px;color:var(--acc);margin-right:2px}
 .fb{margin-top:12px;border-radius:12px;padding:12px 14px;font-size:14px}
 .fb.ok{background:var(--okbg)}.fb.ng{background:var(--ngbg)}
 .fb b{font-size:16px}
 .fb .meta{font-size:12px;color:var(--sub);margin-top:4px}
+.meta b{font-size:inherit}
 .flip{min-height:230px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer}
 .flip .ans{margin-top:14px;font-size:18px;font-weight:700;color:var(--acc);border-top:1px dashed var(--line);padding-top:12px;width:100%}
 .flip .tap{font-size:12px;color:var(--sub);margin-top:16px}
@@ -86,7 +89,7 @@ input[type=search]{width:100%;border:1px solid var(--line);border-radius:10px;pa
 <!-- PWA ここまで -->
 </head>
 <body>
-<header><h1 class="mincho">古文単語テスト</h1><span class="ver">v4</span><a href="../">一覧へ</a></header>
+<header><h1 class="mincho">古文単語テスト</h1><span class="ver">v5</span><a href="../">一覧へ</a></header>
 <main id="main"></main>
 <nav class="tabs" id="tabs"></nav>
 <script>
@@ -225,7 +228,9 @@ function quizStep() {
     const b = $(`<button class="opt ${dir === "mk" ? "mincho" : ""}">${dir === "km" ? esc(o.mt) : `<b style="font-size:18px">${esc(o.w)}</b>`}</button>`);
     b.onclick = () => {
       const ok = o.id === e.id; mark(e, ok); if (ok) s.ok++; else s.wrong.push(e);
-      box.querySelectorAll("button").forEach((x, j) => { x.disabled = true; if (opts[j].id === e.id) x.classList.add("ok"); });
+      box.querySelectorAll("button").forEach((x, j) => { x.disabled = true; const o2 = opts[j]; if (o2.id === e.id) x.classList.add("ok");
+        // 選んだ後：どの選択肢がどの単語（訳）だったかを見せる
+        x.appendChild($(dir === "km" ? `<span class="rev"><b class="mincho">${esc(o2.w)}</b>${o2.k ? "（" + esc(o2.k) + "）" : ""}${o2.n ? "　番号 " + o2.n : "　関連語"}</span>` : `<span class="rev">${esc(o2.mt)}${o2.k ? "　（" + esc(o2.k) + "）" : ""}${o2.n ? "　番号 " + o2.n : "　関連語"}</span>`)); });
       if (!ok) b.classList.add("ng");
       if (dir === "km") q.querySelector(".k").textContent = e.k ? "（" + e.k + "）" : "";
       const quitEl = main.querySelector(".link"); main.insertBefore($(`<div class="fb ${ok ? "ok" : "ng"}"><b>${ok ? "○ 正解" : "✕ 不正解"}</b>　<span class="mincho" style="font-weight:700">${esc(e.w)}</span>${meanHtml(e).startsWith("<ol") ? meanHtml(e) : "：" + meanHtml(e)}${metaHtml(e)}</div>`), quitEl);
